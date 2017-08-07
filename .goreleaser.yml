@@ -1,0 +1,13 @@
+# goreleaser.yml
+build:
+  binary: notify-irc
+  goos:
+    - linux
+    - freebsd
+  goarch:
+    - amd64
+    - 386
+release:
+  draft: true
+snapshot:
+  name_template: snapshot-{{.Commit}}

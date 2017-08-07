@@ -1,0 +1,19 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "Pc2ORQp+VY3Un/dkh4QwLC7R6lE=",
+			"path": "github.com/BurntSushi/toml",
+			"revision": "a368813c5e648fee92e5f6c30e3944ff9d5e8895",
+			"revisionTime": "2017-06-26T11:06:00Z"
+		},
+		{
+			"checksumSHA1": "Oqx/4M+xDiB2ME3YkffeZmz/ohk=",
+			"path": "github.com/jessevdk/go-flags",
+			"revision": "5695738f733662da3e9afc2283bba6f3c879002d",
+			"revisionTime": "2017-05-21T21:21:05Z"
+		}
+	],
+	"rootPath": "github.com/lrstanley/nagios-notify-irc"
+}

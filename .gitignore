@@ -1,0 +1,10 @@
+*.log
+~*
+*.tmp
+*.txt
+dist
+*.test
+*.prof
+vendor/*
+!vendor/*.json
+notify-irc
