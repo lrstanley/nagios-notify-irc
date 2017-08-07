@@ -1,6 +1,6 @@
-# notify-irc
+# nagios-notify-irc
 
-Nagios script for reporting to an IRC channel when an event occurs.
+Nagios utility for reporting to an IRC channel when an event occurs.
 
 ## Table of Contents
 - [Releases](#releases)
