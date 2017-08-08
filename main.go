@@ -26,6 +26,10 @@ var debug = log.New(ioutil.Discard, "", log.LstdFlags)
 func main() {
 	parser := gflags.NewParser(&flags, gflags.HelpFlag)
 	parser.CommandHandler = func(cmd gflags.Commander, args []string) error {
+		if _, ok := cmd.(*GenConfig); ok {
+			return cmd.Execute(args)
+		}
+
 		var err error
 		conf, err = parseConfig(flags.ConfigFile)
 

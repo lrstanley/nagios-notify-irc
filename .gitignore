@@ -5,6 +5,8 @@
 dist
 *.test
 *.prof
+*.conf
+*.toml
 vendor/*
 !vendor/*.json
 notify-irc
