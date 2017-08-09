@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/lrstanley/girc"
 )
@@ -29,6 +30,13 @@ func (s *Daemon) Execute([]string) error {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
+	time.Sleep(10 * time.Second)
+	conf.Servers[0].recv <- &Event{
+		Pings:   []string{"*"},
+		Targets: []string{"*"},
+		Text:    "THIS IS A TEST. IGNORE.",
+	}
+
 	<-sc
 	close(done)
 	wg.Wait()
@@ -38,9 +46,9 @@ func (s *Daemon) Execute([]string) error {
 }
 
 type Event struct {
-	Ping   string // "*", "@", or list of users.
-	Target string
-	Text   string
+	Pings   []string // "*", "@", or list of users.
+	Targets []string // "*" or list of users.
+	Text    string
 }
 
 type Server struct {
@@ -147,15 +155,52 @@ done:
 
 func (s *Server) handle(c *girc.Client, e *Event) {
 	targets := []string{}
-	if e.Target == "*" {
-		targets = c.Channels()
-	} else {
-		targets = append(targets, e.Target)
+	for i := 0; i < len(e.Targets); i++ {
+		if e.Targets[i] == "*" {
+			targets = c.Channels()
+			break
+		}
+
+		targets = append(targets, e.Targets[i])
 	}
 
-	// TODO: ping issues with girc.
+	var pingAll bool
+	var pingOps bool
+	for i := 0; i < len(e.Pings); i++ {
+		if e.Pings[i] == "*" {
+			pingAll = true
+			break
+		}
+
+		if e.Pings[i] == "@" {
+			pingOps = true
+			break
+		}
+	}
 
 	for i := 0; i < len(targets); i++ {
+		channel := c.LookupChannel(targets[i])
+		if channel == nil {
+			s.log.Printf("requested send to unknown channel %q", targets[i])
+			continue
+		}
+
+		if pingAll {
+			c.Cmd.Message(targets[i], strings.Join(channel.UserList, " ")+":")
+		} else if pingOps {
+			users := channel.Admins(c)
+			ops := []string{}
+			for j := 0; j < len(users); j++ {
+				ops = append(ops, users[j].Nick)
+			}
+
+			if len(ops) > 0 {
+				c.Cmd.Message(targets[i], strings.Join(ops, " ")+":")
+			}
+		} else {
+			c.Cmd.Message(targets[i], strings.Join(e.Pings, " ")+":")
+		}
+
 		c.Cmd.Message(targets[i], e.Text)
 	}
 }
