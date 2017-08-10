@@ -5,6 +5,7 @@ Nagios utility for reporting to an IRC channel when an event occurs.
 ## Table of Contents
 - [Releases](#releases)
 - [Installation](#installation)
+- [Configuration](#configuration)
 - [Usage](#usage)
   - [Daemon](#daemon)
   - [Client](#client)
