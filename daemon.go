@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/lrstanley/girc"
+	"github.com/valyala/gorpc"
 )
 
 type Daemon struct{}
@@ -37,7 +38,16 @@ func (s *Daemon) Execute([]string) error {
 		Text:    "THIS IS A TEST. IGNORE.",
 	}
 
+	dp := gorpc.NewDispatcher()
+	dp.AddService("Daemon", &s)
+	rpc := gorpc.NewUnixServer(conf.SocketFile, dp.NewHandlerFunc())
+	err := rpc.Start()
+	if err != nil {
+		debug.Fatalf("rpc: %s", err)
+	}
+
 	<-sc
+	rpc.Stop()
 	close(done)
 	wg.Wait()
 
