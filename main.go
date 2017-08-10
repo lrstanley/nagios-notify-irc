@@ -5,11 +5,13 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	gflags "github.com/jessevdk/go-flags"
 )
 
-var version, commit, date = "unknown", "-", "-"
+var version, commit, date = "unknown", "master", "-"
 
 type Flags struct {
 	ConfigFile string    `short:"c" long:"config" description:"configuration file location" default:"/etc/notify-irc.toml"`
@@ -40,11 +42,19 @@ func main() {
 	}
 	_, err := parser.Parse()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "exiting: %s\n", err)
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 
 	if flags.Debug {
 		debug.SetOutput(os.Stdout)
 	}
+}
+
+func catch() {
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+
+	<-signals
+	fmt.Println("\ninvoked termination, cleaning up")
 }

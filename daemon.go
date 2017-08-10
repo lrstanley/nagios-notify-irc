@@ -6,59 +6,75 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/signal"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/lrstanley/girc"
 	"github.com/valyala/gorpc"
 )
 
-type Daemon struct{}
+func newRpc() *gorpc.Dispatcher {
+	dp := gorpc.NewDispatcher()
+	dp.AddService("Daemon", &Daemon{})
+
+	return dp
+}
+
+type Daemon struct {
+	StartupDelay int `short:"d" long:"delay" description:"delay (seconds) between each new irc connection" default:"1"`
+}
+
+func (s *Daemon) Send(event *Event) string {
+	for i := 0; i < len(conf.Servers); i++ {
+		if conf.Servers[i].ID == event.ID || event.ID == "" {
+			conf.Servers[i].recv <- event
+		}
+	}
+
+	return "OK"
+}
 
 func (s *Daemon) Execute([]string) error {
 	done := make(chan struct{})
 	var wg sync.WaitGroup
 
-	for i := 0; i < len(conf.Servers); i++ {
-		wg.Add(1)
-		conf.Servers[i].recv = make(chan *Event)
-		go conf.Servers[i].setup(done, &wg)
-	}
-
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
-
-	time.Sleep(10 * time.Second)
-	conf.Servers[0].recv <- &Event{
-		Pings:   []string{"*"},
-		Targets: []string{"*"},
-		Text:    "THIS IS A TEST. IGNORE.",
-	}
-
-	dp := gorpc.NewDispatcher()
-	dp.AddService("Daemon", &s)
+	dp := newRpc()
 	rpc := gorpc.NewUnixServer(conf.SocketFile, dp.NewHandlerFunc())
 	err := rpc.Start()
 	if err != nil {
-		debug.Fatalf("rpc: %s", err)
+		return fmt.Errorf("rpc: %s", err)
 	}
 
-	<-sc
+	for i := 0; i < len(conf.Servers); i++ {
+		wg.Add(1)
+		conf.Servers[i].recv = make(chan *Event)
+		time.Sleep(time.Duration(s.StartupDelay) * time.Second)
+		go conf.Servers[i].setup(done, &wg)
+	}
+
+	catch()
 	rpc.Stop()
 	close(done)
 	wg.Wait()
 
-	fmt.Println("\nexiting")
+	for i := 0; i < len(conf.Servers); i++ {
+		close(conf.Servers[i].recv)
+	}
+
+	fmt.Println("exiting")
 	return nil
 }
 
 type Event struct {
+	ID      string   // The ID of the server from the configuration file.
 	Pings   []string // "*", "@", or list of users.
-	Targets []string // "*" or list of users.
-	Text    string
+	Targets []string // "*" or list of channels.
+	Text    []string
+}
+
+func (e *Event) String() string {
+	return fmt.Sprintf("<[Event] id:%q pings:%#v targets:%#v text:%#v>", e.ID, e.Pings, e.Targets, e.Text)
 }
 
 type Server struct {
@@ -79,6 +95,13 @@ type Server struct {
 
 	log  *log.Logger
 	recv chan *Event
+}
+
+func (s *Server) String() string {
+	return fmt.Sprintf(
+		"<[Server] id:%q host:%q port:%d bind:%q tls:%t tls-skip-verify:%t nick:%q channels:%#v>",
+		s.ID, s.Hostname, s.Port, s.Bind, s.TLS, s.TLSSkipVerify, s.Nick, s.Channels,
+	)
 }
 
 func (s *Server) setup(done chan struct{}, wg *sync.WaitGroup) error {
@@ -105,7 +128,7 @@ func (s *Server) setup(done chan struct{}, wg *sync.WaitGroup) error {
 		s.User = conf.DefaultUser
 	}
 
-	s.log.Printf("%#v\n", s)
+	s.log.Printf("adding %s", s.String())
 
 	ircConfig := girc.Config{
 		Server:       s.Hostname,
@@ -116,6 +139,7 @@ func (s *Server) setup(done chan struct{}, wg *sync.WaitGroup) error {
 		User:         s.User,
 		Bind:         s.Bind,
 		SSL:          s.TLS,
+		Version:      "https://github.com/lrstanley/nagios-notify-irc " + version,
 		GlobalFormat: !s.DisableColors,
 		TLSConfig:    &tls.Config{ServerName: s.Hostname, InsecureSkipVerify: s.TLSSkipVerify},
 		RecoverFunc:  func(_ *girc.Client, e *girc.HandlerError) { s.log.Print(e.Error()) },
@@ -156,14 +180,11 @@ done:
 	client.Close()
 	wgDone.Wait()
 
-	for i := 0; i < len(conf.Servers); i++ {
-		close(conf.Servers[i].recv)
-	}
-
 	return nil
 }
 
 func (s *Server) handle(c *girc.Client, e *Event) {
+	s.log.Printf("handling event: %s", e)
 	targets := []string{}
 	for i := 0; i < len(e.Targets); i++ {
 		if e.Targets[i] == "*" {
@@ -207,11 +228,13 @@ func (s *Server) handle(c *girc.Client, e *Event) {
 			if len(ops) > 0 {
 				c.Cmd.Message(targets[i], strings.Join(ops, " ")+":")
 			}
-		} else {
+		} else if len(e.Pings) > 0 {
 			c.Cmd.Message(targets[i], strings.Join(e.Pings, " ")+":")
 		}
 
-		c.Cmd.Message(targets[i], e.Text)
+		for j := 0; j < len(e.Text); j++ {
+			c.Cmd.Message(targets[i], e.Text[j])
+		}
 	}
 }
 
@@ -228,6 +251,6 @@ func (s *Server) onConnect(c *girc.Client, e girc.Event) {
 
 func (s *Server) onAll(c *girc.Client, e girc.Event) {
 	if out, ok := e.Pretty(); ok {
-		s.log.Println(out)
+		s.log.Println(girc.StripRaw(out))
 	}
 }
