@@ -6,6 +6,9 @@ Nagios utility for reporting to an IRC channel when an event occurs.
 - [Releases](#releases)
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Daemon](#daemon)
+  - [Client](#client)
+  - [Colors](#colors)
 - [Example Nagios config](#example-nagios-config)
 - [License](#license)
 
@@ -27,11 +30,79 @@ notify-irc should work on Ubuntu, CentOS, and many other distros and
 architectures. Below are example commands of how you would install this
 (ensure to replace `${VERSION...}` etc, with the appropriate vars):
 
-TODO
+```
+$ wget https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/nagios-notify-irc_${VERSION_OS_ARCH}.tar.gz
+$ tar -C /usr/bin/ -xzvf nagios-notify-irc_${VERSION_OS_ARCH}.tar.gz notify-irc
+$ chmod +x /usr/bin/notify-irc
+```
+
+## Configuration
+
+Simply run the following command to generate a configuration file which you
+can edit.
+
+```
+$ notify-irc gen-config > /etc/notify-irc.toml
+```
+
+Note that you can add multiple server entries if you wish. You can also place
+the configuration file in another location, and specify this location when
+you invoke notify-irc like so:
+
+```
+$ notify-irc -c path/to/your/config.toml [FLAGS] [SUB-COMMAND] [ARGS]
+```
 
 ## Usage
 
-TODO
+The way notify-irc works, is that it runs a daemon in the background which
+stays connected to irc. When an alert comes in, the notify-irc client connects
+to the daemon, and forwards the message to the necessary server/channel.
+
+This is done to prevent unwanted join/part spam from the bot, and give a good
+representation of knowing that the alert bot is still functioning.
+
+### Daemon
+
+To run the daemon, simply execute the following:
+
+```
+$ notify-irc daemon
+```
+
+Though, this should likely be run by systemd or on startup, and not manually
+invoked.
+
+### Client
+
+The client is what you will use in your Nagios configurations, which will
+pass the message/alert to the daemon. Here is an example:
+
+```
+$ notify-irc -s example-1 -p "@" -c "#your-channel" -c "#another-channel" "Example message" "More info"
+```
+
+With the above command, this will send an alert to the example-1 server
+(specified as the "id" in the configuration file), to the two specified
+channels, ping the ops in each of those channels, and send two messages
+separate messages to the channel, `Example message` and `More info`.
+
+Note that specifying the server id, ping list, etc, is all optional. This
+allows you to generate a message which is sent to multiple networks, across
+multiple channels.
+
+See the following for more information:
+
+```
+$ notify-irc client --help
+```
+
+### Colors
+
+When passing text to the [client](#client), note that it supports common
+irc color codes. You can specify them like `{red}`, `{teal}`, `{bold}`, etc.
+To close a color code, you will want to use `{c}`. A full list of supported
+codes is shown [here](https://github.com/lrstanley/girc/blob/ef73e5521b5bcbc1248229d8600e574f90a9508d/format.go#L18-L39).
 
 ## Example Nagios config
 
