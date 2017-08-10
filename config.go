@@ -53,39 +53,61 @@ func parseConfig(path string) (*Config, error) {
 	return &tmpConfig, nil
 }
 
-const exampleConfig = `
+const exampleConfig = `# nagios-notify-irc
+# generated on: %s
+#  NOTE:
+#    Most of the entries in this file are NOT required. Simply remove them to
+#    have them fallback to their pre-configured defaults.
+
 # The path where the unix socket device file will be stored. This is used by
-# both the client and the daemon.
+# both the client and the daemon. Both the client and server must have perms
+# to this file, which includes the user which you are invoking the client from
+# (likely the "nagios" user).
 socket_file = "/tmp/notify-irc.sock"
 
-reconnect_delay = "30s"
+# The delay in seconds to wait before trying to reconnect after an error.
+reconnect_delay = 30
 
+# Default configuration overrides.
 default_port = 6667
 default_nick = "nagios"
 default_name = "Nagios alert relay"
 default_user = "nagios"
 
-[[server]]
-id = "test1"
-nick = "nagios1"
-hostname = "irc.byteirc.org"
-port = 6697
-tls = true
-channels = ["#dev", "#dev1"]
+# Specify as many "[[server]]" blocks as you wish. The only required fields
+# are "id" and "hostname", although you should probably fill in at least one
+# channel too.
 
+# Below is an example of all of the configuration options.
 [[server]]
-id = "test2"
-nick = "nagios2"
-hostname = "irc.byteirc.org"
+id = "full-example"
+hostname = "irc.example.com"
+password = ""
+bind = ""
+tls = false
+tls_skip_verify = false
+port = 6667
+channels = []
+disable_colors = false
+nick = "nagios"
+name = "Nagios alert relay"
+user = "nagios"
+sasl_user = ""
+sasl_pass = ""
+
+# Below is a shortened but valid example, which also shows how you would
+# specify a channel which requires a password to join.
+[[server]]
+id = "example-1"
+hostname = "irc.example2.com"
 port = 6697
 tls = true
-channels = ["#dev yourkey", "#dev1"]
+channels = ["#dev", "#secret channel-key"]
 `
 
 type GenConfig struct{}
 
 func (GenConfig) Execute(_ []string) error {
-	fmt.Printf("# nagios-notify-irc\n# generated on: %s\n", time.Now().Format(time.ANSIC))
-	fmt.Println(exampleConfig)
+	fmt.Printf(exampleConfig+"\n", time.Now().Format(time.ANSIC))
 	return nil
 }

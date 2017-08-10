@@ -78,20 +78,20 @@ func (e *Event) String() string {
 }
 
 type Server struct {
-	ID            string
-	Hostname      string
-	Password      string
-	Bind          string
-	Port          int
-	TLS           bool
-	TLSSkipVerify bool
-	Channels      []string
-	DisableColors bool
-	Nick          string
-	Name          string
-	User          string
-	SASLUser      string
-	SASLPass      string
+	ID            string   `toml:"id"`
+	Hostname      string   `toml:"hostname"`
+	Password      string   `toml:"password"`
+	Bind          string   `toml:"bind"`
+	Port          int      `toml:"port"`
+	TLS           bool     `toml:"tls"`
+	TLSSkipVerify bool     `toml:"tls_skip_verify"`
+	Channels      []string `toml:"channels"`
+	DisableColors bool     `toml:"disable_colors"`
+	Nick          string   `toml:"nick"`
+	Name          string   `toml:"name"`
+	User          string   `toml:"user"`
+	SASLUser      string   `toml:"sasl_user"`
+	SASLPass      string   `toml:"sasl_pass"`
 
 	log  *log.Logger
 	recv chan *Event
@@ -161,7 +161,11 @@ func (s *Server) setup(done chan struct{}, wg *sync.WaitGroup) error {
 			if err == nil {
 				break
 			}
+
 			s.log.Printf("error: %s", err)
+
+			s.log.Printf("sleeping for %ds before reconnecting", conf.ReconnectDelay)
+			time.Sleep(time.Duration(conf.ReconnectDelay) * time.Second)
 		}
 
 		wgDone.Done()
