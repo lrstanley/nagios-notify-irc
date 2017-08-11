@@ -22,7 +22,8 @@ from source (you must install [Go](https://golang.org/doc/install) first):
 ```
 $ git clone https://github.com/lrstanley/nagios-notify-irc.git
 $ cd nagios-notify-irc
-$ make
+$ make help
+$ make build
 ```
 
 ## Installation
