@@ -7,6 +7,7 @@ Nagios utility for reporting to an IRC channel when an event occurs.
   - [Ubuntu/Debian](#ubuntudebian)
   - [CentOS/Redhat](#centosredhat)
   - [Manual Install](#manual-install)
+  - [Source](#source)
 - [Configuration](#configuration)
 - [Usage](#usage)
   - [Daemon](#daemon)
@@ -18,19 +19,9 @@ Nagios utility for reporting to an IRC channel when an event occurs.
 ## Installation
 
 Check out the [releases](https://github.com/lrstanley/nagios-notify-irc/releases)
-page for prebuilt versions. If you need a specific version, feel free to compile
-from source (you must install [Go](https://golang.org/doc/install) first):
-
-```
-$ git clone https://github.com/lrstanley/nagios-notify-irc.git
-$ cd nagios-notify-irc
-$ make help
-$ make build
-```
-
-notify-irc should work on ubuntu/debian, centos/redhat/fedora, etc. Below are
-example commands of how you would install this (ensure to replace `${VERSION...}`
-etc, with the appropriate vars).
+page for prebuilt versions. notify-irc should work on ubuntu/debian,
+centos/redhat/fedora, etc. Below are example commands of how you would install
+the utility (ensure to replace `${VERSION...}` etc, with the appropriate vars).
 
 **NOTE**: If you are running nagios as a different user, you _will_ need to
 update the service files to the correct user.
@@ -38,8 +29,8 @@ update the service files to the correct user.
 ### Ubuntu/Debian
 
 ```bash
-$ wget https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/nagios-notify-irc_${VERSION_OS_ARCH}.deb
-$ dpkg -i nagios-notify-irc_${VERSION_OS_ARCH}.deb
+$ wget https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/notify-irc_${VERSION_OS_ARCH}.deb
+$ dpkg -i notify-irc_${VERSION_OS_ARCH}.deb
 $ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
 $ systemctl enable notify-irc
 $ systemctl start notify-irc
@@ -48,7 +39,7 @@ $ systemctl start notify-irc
 ### CentOS/Redhat
 
 ```bash
-$ yum localinstall https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/nagios-notify-irc_${VERSION_OS_ARCH}.rpm
+$ yum localinstall https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/notify-irc_${VERSION_OS_ARCH}.rpm
 $ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
 $ systemctl enable notify-irc
 $ systemctl start notify-irc
@@ -57,11 +48,23 @@ $ systemctl start notify-irc
 ### Manual Install
 
 ```bash
-$ wget https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/nagios-notify-irc_${VERSION_OS_ARCH}.tar.gz
-$ tar -C /usr/bin/ -xzvf nagios-notify-irc_${VERSION_OS_ARCH}.tar.gz notify-irc
+$ wget https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/notify-irc_${VERSION_OS_ARCH}.tar.gz
+$ tar -C /usr/bin/ -xzvf notify-irc_${VERSION_OS_ARCH}.tar.gz notify-irc
 $ chmod +x /usr/bin/notify-irc
 $ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
 $ notify-irc daemon # run this in a screen, cron, your own init script, etc.
+```
+
+### Source
+
+If you need a specific version, feel free to compile from source (you must
+install [Go](https://golang.org/doc/install) first):
+
+```
+$ git clone https://github.com/lrstanley/nagios-notify-irc.git
+$ cd nagios-notify-irc
+$ make help
+$ make build
 ```
 
 ## Configuration
@@ -132,9 +135,19 @@ irc color codes. You can specify them like `{red}`, `{teal}`, `{bold}`, etc.
 To close a color code, you will want to use `{c}`. A full list of supported
 codes is shown [here](https://github.com/lrstanley/girc/blob/ef73e5521b5bcbc1248229d8600e574f90a9508d/format.go#L18-L39).
 
-## Example Nagios config
+## Example Nagios Config
 
-TODO
+```conf
+define command {
+	command_name notify_irc_service
+	command_line /usr/local/bin/notify-irc client -p "@" -c "*" "[{yellow}{b}ALERT{b}{c}] {yellow}{b}$SERVICEDESC${b}{c} :: {teal}$HOSTNAME${c} ({teal}$HOSTADDRESS${c}) :: {yellow}{b}$SERVICESTATE${b}{c} ({b}$SERVICESTATETYPE${b}) (for {cyan}$SERVICEDURATION${c})" "$SERVICEOUTPUT$"
+}
+
+define command {
+	command_name notify_irc_host
+	command_line /usr/local/bin/notify-irc client -p "@" -c "*" "[{yellow}{b}ALERT{b}{c}] {teal}$HOSTNAME${c} ({teal}$HOSTADDRESS${c}) :: {yellow}{b}$HOSTSTATE${b}{c} ({b}$HOSTSTATETYPE${b}) (for {cyan}$HOSTDURATION${c}) :: [ {green}{b}OK:{b} $TOTALHOSTSERVICESOK${c} | {yellow}{b}WARN:{b} $TOTALHOSTSERVICESWARNING${c} | {b}UNKN:{b} $TOTALHOSTSERVICESUNKNOWN$ | {red}{b}CRIT:{b} $TOTALHOSTSERVICESCRITICAL${c} ]" "$HOSTOUTPUT$"
+}
+```
 
 ## License
 

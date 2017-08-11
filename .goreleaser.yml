@@ -1,4 +1,5 @@
 # goreleaser.yml
+project_name: notify-irc
 build:
   binary: notify-irc
   goos:
