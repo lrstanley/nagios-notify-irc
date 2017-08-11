@@ -7,7 +7,18 @@ build:
   goarch:
     - amd64
     - 386
-release:
-  draft: true
+fpm:
+  homepage: https://github.com/lrstanley/nagios-notify-irc
+  maintainer: Liam Stanley <me@liamstanley.io>
+  description: Nagios utility for reporting to an IRC channel when an event occurs.
+  license: MIT
+  formats:
+    - deb
+    - rpm
+  files:
+    "scripts/notify-irc.service": "/etc/systemd/system/"
+    "scripts/notify-irc.sysvinit": "/etc/init.d/notify-irc"
 snapshot:
   name_template: snapshot-{{.Commit}}
+release:
+  draft: true

@@ -1,0 +1,25 @@
+[Unit]
+Description=Nagios utility for reporting to an IRC channel when an event occurs.
+Documentation=https://github.com/lrstanley/nagios-notify-irc
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+
+[Service]
+User=nagios
+Group=nagios
+Restart=on-failure
+ExecStart=/usr/local/bin/notify-irc daemon
+
+; Use graceful shutdown with a reasonable timeout
+KillMode=mixed
+KillSignal=SIGQUIT
+TimeoutStopSec=5s
+
+PrivateDevices=true
+; Hide /home, /root, and /run/user.
+ProtectHome=true
+; Make /usr, /boot, /etc and possibly some more folders read-only.
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

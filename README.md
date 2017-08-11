@@ -3,8 +3,10 @@
 Nagios utility for reporting to an IRC channel when an event occurs.
 
 ## Table of Contents
-- [Releases](#releases)
 - [Installation](#installation)
+  - [Ubuntu/Debian](#ubuntudebian)
+  - [CentOS/Redhat](#centosredhat)
+  - [Manual Install](#manual-install)
 - [Configuration](#configuration)
 - [Usage](#usage)
   - [Daemon](#daemon)
@@ -13,7 +15,7 @@ Nagios utility for reporting to an IRC channel when an event occurs.
 - [Example Nagios config](#example-nagios-config)
 - [License](#license)
 
-## Releases
+## Installation
 
 Check out the [releases](https://github.com/lrstanley/nagios-notify-irc/releases)
 page for prebuilt versions. If you need a specific version, feel free to compile
@@ -26,16 +28,40 @@ $ make help
 $ make build
 ```
 
-## Installation
+notify-irc should work on ubuntu/debian, centos/redhat/fedora, etc. Below are
+example commands of how you would install this (ensure to replace `${VERSION...}`
+etc, with the appropriate vars).
 
-notify-irc should work on Ubuntu, CentOS, and many other distros and
-architectures. Below are example commands of how you would install this
-(ensure to replace `${VERSION...}` etc, with the appropriate vars):
+**NOTE**: If you are running nagios as a different user, you _will_ need to
+update the service files to the correct user.
 
+### Ubuntu/Debian
+
+```bash
+$ wget https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/nagios-notify-irc_${VERSION_OS_ARCH}.deb
+$ dpkg -i nagios-notify-irc_${VERSION_OS_ARCH}.deb
+$ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
+$ systemctl enable notify-irc
+$ systemctl start notify-irc
 ```
+
+### CentOS/Redhat
+
+```bash
+$ yum localinstall https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/nagios-notify-irc_${VERSION_OS_ARCH}.rpm
+$ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
+$ systemctl enable notify-irc
+$ systemctl start notify-irc
+```
+
+### Manual Install
+
+```bash
 $ wget https://github.com/lrstanley/nagios-notify-irc/releases/download/${VERSION}/nagios-notify-irc_${VERSION_OS_ARCH}.tar.gz
 $ tar -C /usr/bin/ -xzvf nagios-notify-irc_${VERSION_OS_ARCH}.tar.gz notify-irc
 $ chmod +x /usr/bin/notify-irc
+$ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
+$ notify-irc daemon # run this in a screen, cron, your own init script, etc.
 ```
 
 ## Configuration
