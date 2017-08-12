@@ -2,6 +2,8 @@
 
 Nagios utility for reporting to an IRC channel when an event occurs.
 
+_A sister project to [nagios-check-ircd](https://github.com/lrstanley/nagios-check-ircd)_
+
 ## Table of Contents
 - [Installation](#installation)
   - [Ubuntu/Debian](#ubuntudebian)
