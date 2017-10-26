@@ -9,10 +9,22 @@
 			"revisionTime": "2017-06-26T11:06:00Z"
 		},
 		{
-			"checksumSHA1": "Oqx/4M+xDiB2ME3YkffeZmz/ohk=",
+			"checksumSHA1": "VrHSM9dRBPL3ufyl8qTnHCnF/cg=",
 			"path": "github.com/jessevdk/go-flags",
-			"revision": "5695738f733662da3e9afc2283bba6f3c879002d",
-			"revisionTime": "2017-05-21T21:21:05Z"
+			"revision": "f88afde2fa19a30cf50ba4b05b3d13bc6bae3079",
+			"revisionTime": "2017-09-26T14:47:05Z"
+		},
+		{
+			"checksumSHA1": "rNCVOx3ocwaeEUlTRabmz5rkqww=",
+			"path": "github.com/lrstanley/girc",
+			"revision": "7756aef6ff832d8000e0cf585fe5f51ef6d28fbc",
+			"revisionTime": "2017-10-20T23:17:52Z"
+		},
+		{
+			"checksumSHA1": "+3DSLmsd2v3m5y2T0Z5a5QgT/a8=",
+			"path": "github.com/valyala/gorpc",
+			"revision": "908281bef77441f2d0ec1792189b4032a1dace0c",
+			"revisionTime": "2016-05-19T17:16:14Z"
 		}
 	],
 	"rootPath": "github.com/lrstanley/nagios-notify-irc"
