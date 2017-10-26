@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Fix stale unix sockets causing daemon to not start after unexpected shutdown.
+- Fix signal handling for `SIGQUIT`.
 
 ## [0.0.2] - 2017-08-11
 ### Added
@@ -17,3 +18,7 @@ All notable changes to this project will be documented in this file.
 ## [0.0.1] - 2017-08-10
 
 - Initial release.
+
+[Unreleased]: https://github.com/lrstanley/nagios-notify-irc/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/lrstanley/nagios-notify-irc/compare/v0.0.2...v0.0.3
+[0.0.2]: https://github.com/lrstanley/nagios-notify-irc/compare/v0.0.1...v0.0.2
