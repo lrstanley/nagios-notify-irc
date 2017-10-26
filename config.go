@@ -84,29 +84,29 @@ default_user = "nagios"
 
 # Below is an example of all of the configuration options.
 [[server]]
-id = "full-example"
-hostname = "irc.example.com"
-password = ""
-bind = ""
-tls = false
-tls_skip_verify = false
-port = 6667
-channels = []
-disable_colors = false
-nick = "nagios"
-name = "Nagios alert relay"
-user = "nagios"
-sasl_user = ""
-sasl_pass = ""
+  id = "full-example"
+  hostname = "irc.example.com"
+  password = ""
+  bind = ""
+  tls = false
+  tls_skip_verify = false
+  port = 6667
+  channels = []
+  disable_colors = false
+  nick = "nagios"
+  name = "Nagios alert relay"
+  user = "nagios"
+  sasl_user = ""
+  sasl_pass = ""
 
 # Below is a shortened but valid example, which also shows how you would
 # specify a channel which requires a password to join.
 [[server]]
-id = "example-1"
-hostname = "irc.example2.com"
-port = 6697
-tls = true
-channels = ["#dev", "#secret channel-key"]
+  id = "example-1"
+  hostname = "irc.example2.com"
+  port = 6697
+  tls = true
+  channels = ["#dev", "#secret channel-key"]
 `
 
 type GenConfig struct{}

@@ -25,7 +25,6 @@ func (c *Client) Usage() string {
 
 func (c *Client) Execute(text []string) error {
 	rpc := gorpc.NewUnixClient(conf.SocketFile)
-	rpc.LogError = gorpc.NilErrorLogger
 	rpc.Start()
 	defer rpc.Stop()
 

@@ -29,6 +29,8 @@ type Daemon struct {
 	StartupDelay int `short:"d" long:"delay" description:"delay (seconds) between each new irc connection" default:"1"`
 }
 
+func (s *Daemon) Ping() {}
+
 func (s *Daemon) Send(event *Event) string {
 	for i := 0; i < len(conf.Servers); i++ {
 		if conf.Servers[i].ID == event.ID || event.ID == "" {
@@ -42,6 +44,27 @@ func (s *Daemon) Send(event *Event) string {
 func (s *Daemon) Execute([]string) error {
 	done := make(chan struct{})
 	var wg sync.WaitGroup
+
+	if _, err := os.Stat(conf.SocketFile); err == nil {
+		rpc := gorpc.NewUnixClient(conf.SocketFile)
+		rpc.Start()
+
+		dp := newRpc()
+		dc := dp.NewServiceClient("Daemon", rpc)
+
+		if _, err := dc.CallTimeout("Ping", nil, 1*time.Second); err != nil {
+			fmt.Printf("removing stale socket file %q\n", conf.SocketFile)
+			if err = os.Remove(conf.SocketFile); err != nil {
+				rpc.Stop()
+				return err
+			}
+		} else {
+			rpc.Stop()
+			return fmt.Errorf("error: daemon already found listening at %q", conf.SocketFile)
+		}
+
+		rpc.Stop()
+	}
 
 	dp := newRpc()
 	rpc := gorpc.NewUnixServer(conf.SocketFile, dp.NewHandlerFunc())
