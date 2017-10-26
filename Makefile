@@ -22,7 +22,7 @@ snapshot: clean fetch ## Generate a snapshot release.
 update-deps: fetch ## Updates all dependencies to the latest available versions.
 	$(GOPATH)/bin/govendor add +external
 	$(GOPATH)/bin/govendor remove +unused
-	$(GOPATH)/bin/govendor update +external
+	$(GOPATH)/bin/govendor fetch +vendor
 
 fetch: ## Fetches the necessary dependencies to build.
 	test -f $(GOPATH)/bin/govendor || go get -u -v github.com/kardianos/govendor
