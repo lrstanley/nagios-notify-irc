@@ -14,7 +14,8 @@ _A sister project to [nagios-check-ircd](https://github.com/lrstanley/nagios-che
 - [Usage](#usage)
   - [Daemon](#daemon)
   - [Client](#client)
-  - [Colors](#colors)
+    - [Templating](#templating)
+    - [Colors](#colors)
 - [Example Nagios config](#example-nagios-config)
 - [Contributing](#contributing)
 - [License](#license)
@@ -63,7 +64,7 @@ $ notify-irc daemon # run this in a screen, cron, your own init script, etc.
 If you need a specific version, feel free to compile from source (you must
 install [Go](https://golang.org/doc/install) first):
 
-```
+```bash
 $ git clone https://github.com/lrstanley/nagios-notify-irc.git
 $ cd nagios-notify-irc
 $ make help
@@ -75,7 +76,7 @@ $ make build
 Simply run the following command to generate a configuration file which you
 can edit.
 
-```
+```bash
 $ notify-irc gen-config > /etc/notify-irc.toml
 ```
 
@@ -83,7 +84,7 @@ Note that you can add multiple server entries if you wish. You can also place
 the configuration file in another location, and specify this location when
 you invoke notify-irc like so:
 
-```
+```bash
 $ notify-irc -c path/to/your/config.toml [FLAGS] [SUB-COMMAND] [ARGS]
 ```
 
@@ -100,7 +101,7 @@ representation of knowing that the alert bot is still functioning.
 
 To run the daemon, simply execute the following:
 
-```
+```bash
 $ notify-irc daemon
 ```
 
@@ -112,7 +113,7 @@ invoked.
 The client is what you will use in your Nagios configurations, which will
 pass the message/alert to the daemon. Here is an example:
 
-```
+```bash
 $ notify-irc -s example-1 -p "@" -c "#your-channel" -c "#another-channel" "Example message" "More info"
 ```
 
@@ -127,28 +128,41 @@ multiple channels.
 
 See the following for more information:
 
-```
+```bash
 $ notify-irc client --help
 ```
 
-### Colors
+#### Templating
+
+Text passed into the [client](#client) by default will allow Go-based
+`text/template` templates. For example:
+
+```bash
+$ notify-irc client -c "#your-channel" '{{ if eq "$SERVICESTATUS" "OK" }}Healthy!{{ else }}Uhoh!{{ end }}: Other stuff here.'
+```
+
+**Note**: This can be disabled by passing `--no-tmpl` to `notify-irc client`,
+which will pass all input text as plaintext.
+
+#### Colors
 
 When passing text to the [client](#client), note that it supports common
-irc color codes. You can specify them like `{red}`, `{teal}`, `{bold}`, etc.
-To close a color code, you will want to use `{c}`. A full list of supported
-codes is shown [here](https://github.com/lrstanley/girc/blob/ef73e5521b5bcbc1248229d8600e574f90a9508d/format.go#L18-L39).
+irc color codes. You can specify them like `{red}`, `{teal}`, `{bold}` (or
+`{b}` for short), etc. To close a color code, you will want to use `{c}` (
+`{red}ERROR{c}: default color with some {b}bold!{b}`). A full list of
+supported codes is shown [here](https://github.com/lrstanley/girc/blob/ef73e5521b5bcbc1248229d8600e574f90a9508d/format.go#L18-L39).
 
 ## Example Nagios Config
 
 ```conf
 define command {
 	command_name notify_irc_service
-	command_line /usr/local/bin/notify-irc client -p "@" -c "*" "[{yellow}{b}ALERT{b}{c}] {yellow}{b}$SERVICEDESC${b}{c} :: {teal}$HOSTNAME${c} ({teal}$HOSTADDRESS${c}) :: {yellow}{b}$SERVICESTATE${b}{c} ({b}$SERVICESTATETYPE${b}) (for {cyan}$SERVICEDURATION${c})" "$SERVICEOUTPUT$"
+	command_line /usr/local/bin/notify-irc client -p '@' -c '*' '[{{if eq "$SERVICESTATE$" "OK"}}{green}{{else}}{red}{{end}}{b}$SERVICESTATE${b}{c}] {yellow}{b}$SERVICEDESC${b}{c} :: {teal}$HOSTNAME${c} ({teal}$HOSTADDRESS${c}) :: ({b}$SERVICESTATETYPE${b}: for {cyan}$SERVICEDURATION${c})' '$SERVICEOUTPUT$'
 }
 
 define command {
 	command_name notify_irc_host
-	command_line /usr/local/bin/notify-irc client -p "@" -c "*" "[{yellow}{b}ALERT{b}{c}] {teal}$HOSTNAME${c} ({teal}$HOSTADDRESS${c}) :: {yellow}{b}$HOSTSTATE${b}{c} ({b}$HOSTSTATETYPE${b}) (for {cyan}$HOSTDURATION${c}) :: [ {green}{b}OK:{b} $TOTALHOSTSERVICESOK${c} | {yellow}{b}WARN:{b} $TOTALHOSTSERVICESWARNING${c} | {b}UNKN:{b} $TOTALHOSTSERVICESUNKNOWN$ | {red}{b}CRIT:{b} $TOTALHOSTSERVICESCRITICAL${c} ]" "$HOSTOUTPUT$"
+	command_line /usr/local/bin/notify-irc client -p '@' -c '*' '[{{if eq "$HOSTSTATE$" "OK"}}{green}{{else}}{red}{{end}}{b}$HOSTSTATE${b}{c}] {teal}$HOSTNAME${c} ({teal}$HOSTADDRESS${c}) :: ({b}$HOSTSTATETYPE${b}: for {cyan}$HOSTDURATION${c}) :: [ {green}{b}OK:{b} $TOTALHOSTSERVICESOK${c} | {yellow}{b}WARN:{b} $TOTALHOSTSERVICESWARNING${c} | {b}UNKN:{b} $TOTALHOSTSERVICESUNKNOWN$ | {red}{b}CRIT:{b} $TOTALHOSTSERVICESCRITICAL${c} ]' '$HOSTOUTPUT$'
 }
 ```
 

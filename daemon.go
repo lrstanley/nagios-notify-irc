@@ -5,6 +5,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"errors"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/intel/tfortools"
 	"github.com/lrstanley/girc"
 	"github.com/valyala/gorpc"
 )
@@ -264,7 +266,18 @@ func (s *Server) handle(c *girc.Client, e *Event) {
 		}
 
 		for j := 0; j < len(e.Text); j++ {
-			c.Cmd.Message(targets[i], e.Text[j])
+			if flags.Client.Plain {
+				c.Cmd.Message(targets[i], e.Text[j])
+				continue
+			}
+
+			buf := &bytes.Buffer{}
+			if err := tfortools.OutputToTemplate(buf, "", e.Text[j], nil, nil); err != nil {
+				s.log.Printf("error executing text template: %s", err)
+				continue
+			}
+
+			c.Cmd.Message(targets[i], strings.TrimSpace(buf.String()))
 		}
 	}
 }

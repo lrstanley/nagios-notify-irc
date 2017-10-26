@@ -9,6 +9,12 @@
 			"revisionTime": "2017-06-26T11:06:00Z"
 		},
 		{
+			"checksumSHA1": "RiLKM7wI7IklkL8H1QD3T9Mm8B4=",
+			"path": "github.com/intel/tfortools",
+			"revision": "1f8e42912c349e7bc7776de0d34cf4a95f286672",
+			"revisionTime": "2017-10-23T17:27:42Z"
+		},
+		{
 			"checksumSHA1": "VrHSM9dRBPL3ufyl8qTnHCnF/cg=",
 			"path": "github.com/jessevdk/go-flags",
 			"revision": "f88afde2fa19a30cf50ba4b05b3d13bc6bae3079",
