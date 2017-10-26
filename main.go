@@ -13,6 +13,7 @@ import (
 	"syscall"
 
 	gflags "github.com/jessevdk/go-flags"
+	"github.com/valyala/gorpc"
 )
 
 var version, commit, date = "unknown", "master", "-"
@@ -30,6 +31,8 @@ var conf *Config
 var debug = log.New(ioutil.Discard, "", log.LstdFlags)
 
 func main() {
+	gorpc.SetErrorLogger(gorpc.NilErrorLogger)
+
 	parser := gflags.NewParser(&flags, gflags.HelpFlag)
 	parser.CommandHandler = func(cmd gflags.Commander, args []string) error {
 		if _, ok := cmd.(*GenConfig); ok {
@@ -57,7 +60,7 @@ func main() {
 
 func catch() {
 	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	<-signals
 	fmt.Println("\ninvoked termination, cleaning up")
