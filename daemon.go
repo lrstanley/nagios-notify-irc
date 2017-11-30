@@ -221,7 +221,7 @@ func (s *Server) handle(c *girc.Client, e *Event) {
 	targets := []string{}
 	for i := 0; i < len(e.Targets); i++ {
 		if e.Targets[i] == "*" {
-			targets = c.Channels()
+			targets = c.ChannelList()
 			break
 		}
 
