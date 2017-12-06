@@ -25,7 +25,7 @@ _A sister project to [nagios-check-ircd](https://github.com/lrstanley/nagios-che
 Check out the [releases](https://github.com/lrstanley/nagios-notify-irc/releases)
 page for prebuilt versions. notify-irc should work on ubuntu/debian,
 centos/redhat/fedora, etc. Below are example commands of how you would install
-the utility (ensure to replace `${VERSION...}` etc, with the appropriate vars).
+the utility.
 
 **NOTE**: If you are running nagios as a different user, you _will_ need to
 update the service files to the correct user.
