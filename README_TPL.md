@@ -33,8 +33,8 @@ update the service files to the correct user.
 ### Ubuntu/Debian
 
 ```bash
-$ wget https://liam.sh/ghr/notify-irc_0.0.3_linux_amd64.deb
-$ dpkg -i notify-irc_0.0.3_linux_amd64.deb
+$ wget https://liam.sh/ghr/notify-irc_[[tag]]_[[os]]_[[arch]].deb
+$ dpkg -i notify-irc_[[tag]]_[[os]]_[[arch]].deb
 $ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
 $ systemctl enable notify-irc
 $ systemctl start notify-irc
@@ -43,7 +43,7 @@ $ systemctl start notify-irc
 ### CentOS/Redhat
 
 ```bash
-$ yum localinstall https://liam.sh/ghr/notify-irc_0.0.3_linux_amd64.rpm
+$ yum localinstall https://liam.sh/ghr/notify-irc_[[tag]]_[[os]]_[[arch]].rpm
 $ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
 $ systemctl enable notify-irc
 $ systemctl start notify-irc
@@ -52,8 +52,8 @@ $ systemctl start notify-irc
 ### Manual Install
 
 ```bash
-$ wget https://liam.sh/ghr/notify-irc_0.0.3_linux_amd64.tar.gz
-$ tar -C /usr/bin/ -xzvf notify-irc_0.0.3_linux_amd64.tar.gz notify-irc
+$ wget https://liam.sh/ghr/notify-irc_[[tag]]_[[os]]_[[arch]].tar.gz
+$ tar -C /usr/bin/ -xzvf notify-irc_[[tag]]_[[os]]_[[arch]].tar.gz notify-irc
 $ chmod +x /usr/bin/notify-irc
 $ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
 $ notify-irc daemon # run this in a screen, cron, your own init script, etc.
