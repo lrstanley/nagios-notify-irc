@@ -7,7 +7,6 @@ build:
     - freebsd
   goarch:
     - amd64
-    - 386
 fpm:
   homepage: https://github.com/lrstanley/nagios-notify-irc
   maintainer: Liam Stanley <me@liamstanley.io>
