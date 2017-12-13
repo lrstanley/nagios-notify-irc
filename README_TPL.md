@@ -32,7 +32,7 @@ update the service files to the correct user.
 
 ### Ubuntu/Debian
 
-```bash
+```console
 $ wget https://liam.sh/ghr/notify-irc_[[tag]]_[[os]]_[[arch]].deb
 $ dpkg -i notify-irc_[[tag]]_[[os]]_[[arch]].deb
 $ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
@@ -42,7 +42,7 @@ $ systemctl start notify-irc
 
 ### CentOS/Redhat
 
-```bash
+```console
 $ yum localinstall https://liam.sh/ghr/notify-irc_[[tag]]_[[os]]_[[arch]].rpm
 $ notify-irc gen-config > /etc/notify-irc.toml # may want to edit the config as well
 $ systemctl enable notify-irc
@@ -51,7 +51,7 @@ $ systemctl start notify-irc
 
 ### Manual Install
 
-```bash
+```console
 $ wget https://liam.sh/ghr/notify-irc_[[tag]]_[[os]]_[[arch]].tar.gz
 $ tar -C /usr/bin/ -xzvf notify-irc_[[tag]]_[[os]]_[[arch]].tar.gz notify-irc
 $ chmod +x /usr/bin/notify-irc
@@ -64,7 +64,7 @@ $ notify-irc daemon # run this in a screen, cron, your own init script, etc.
 If you need a specific version, feel free to compile from source (you must
 install [Go](https://golang.org/doc/install) first):
 
-```bash
+```console
 $ git clone https://github.com/lrstanley/nagios-notify-irc.git
 $ cd nagios-notify-irc
 $ make help
@@ -76,7 +76,7 @@ $ make build
 Simply run the following command to generate a configuration file which you
 can edit.
 
-```bash
+```console
 $ notify-irc gen-config > /etc/notify-irc.toml
 ```
 
@@ -84,7 +84,7 @@ Note that you can add multiple server entries if you wish. You can also place
 the configuration file in another location, and specify this location when
 you invoke notify-irc like so:
 
-```bash
+```console
 $ notify-irc -c path/to/your/config.toml [FLAGS] [SUB-COMMAND] [ARGS]
 ```
 
@@ -101,7 +101,7 @@ representation of knowing that the alert bot is still functioning.
 
 To run the daemon, simply execute the following:
 
-```bash
+```console
 $ notify-irc daemon
 ```
 
@@ -113,7 +113,7 @@ invoked.
 The client is what you will use in your Nagios configurations, which will
 pass the message/alert to the daemon. Here is an example:
 
-```bash
+```console
 $ notify-irc -s example-1 -p "@" -c "#your-channel" -c "#another-channel" "Example message" "More info"
 ```
 
@@ -128,7 +128,7 @@ multiple channels.
 
 See the following for more information:
 
-```bash
+```console
 $ notify-irc client --help
 ```
 
@@ -137,7 +137,7 @@ $ notify-irc client --help
 Text passed into the [client](#client) by default will allow Go-based
 `text/template` templates. For example:
 
-```bash
+```console
 $ notify-irc client -c "#your-channel" '{{ if eq "$SERVICESTATUS" "OK" }}Healthy!{{ else }}Uhoh!{{ end }}: Other stuff here.'
 ```
 
