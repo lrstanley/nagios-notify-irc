@@ -284,7 +284,7 @@ func (s *Server) handle(c *girc.Client, e *Event) {
 
 func (s *Server) onConnect(c *girc.Client, e girc.Event) {
 	for i := 0; i < len(s.Channels); i++ {
-		if split := strings.SplitN(s.Channels[i], " ", 1); len(split) == 2 {
+		if split := strings.SplitN(s.Channels[i], " ", 2); len(split) == 2 {
 			c.Cmd.JoinKey(split[0], split[1])
 			continue
 		}
